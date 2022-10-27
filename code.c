@@ -18,6 +18,23 @@ float magnitude(int a, int b, int c)
     return result;
 }
 
+void subtract_background(unsigned char* img_1, unsigned char* img_2, unsigned char* img_3, char* file_name)
+{
+    for(int i=0; i<HEIGHT;i++)
+    {
+    	for(int j=0; j<WIDTH;j++)
+    	{
+            if (magnitude(img_2[(i*WIDTH + j)*CHANNELS + 0]-img_1[(i*WIDTH+j)*CHANNELS + 0], img_2[(i*WIDTH+j)*CHANNELS + 1]-img_1[(i*WIDTH+j)*CHANNELS + 1], img_2[(i*WIDTH + j)*CHANNELS + 2]-img_1[(i*WIDTH+j)*CHANNELS + 2]) > 100)
+            {
+                img_3[(i*WIDTH + j)*CHANNELS + 0] = img_2[(i*WIDTH + j)*CHANNELS + 0];
+                img_3[(i*WIDTH + j)*CHANNELS + 1] = img_2[(i*WIDTH + j)*CHANNELS + 1];
+                img_3[(i*WIDTH + j)*CHANNELS + 2] = img_2[(i*WIDTH + j)*CHANNELS + 2];
+            }
+    	}
+	}
+    stbi_write_jpg(file_name, WIDTH, HEIGHT, CHANNELS, img_3, 100);
+}
+
 int main(void) {
     int width, height, channels;
 
@@ -40,43 +57,11 @@ int main(void) {
         exit(1);
     }
 
-    // for(int i=0; i<HEIGHT; i++)
-    // {
-    //     for(int j=0; j<WIDTH; j++)
-    //     {
-    //         if (object[(i * width + j) * channels + 1]*1.5 < object[(i * width + j) * channels + 2] + object[(i * width + j) * channels])
-    //         {
-    //             for(int k=0; k<CHANNELS; k++)
-    //             {
-    //                 forecast_bg[(i * width + j) * channels + k] = object[(i * width + j) * channels + k];
-    //             }
-    //         }
-    //     }        
-	// }
+    subtract_background(background, object, forecast_bg, "./image/final_1.jpg");
 
-    for(int i=0; i<HEIGHT;i++)
-    {
-    	for(int j=0; j<WIDTH;j++)
-    	{
-            if (magnitude(object[(i*WIDTH + j)*CHANNELS + 0]-background[(i*WIDTH+j)*CHANNELS + 0], object[(i*WIDTH+j)*CHANNELS + 1]-background[(i*WIDTH+j)*CHANNELS + 1], object[(i*WIDTH + j)*CHANNELS + 2]-background[(i*WIDTH+j)*CHANNELS + 2]) > 100)
-            {
-                forecast_bg[(i*WIDTH + j)*CHANNELS + 0] = object[(i*WIDTH + j)*CHANNELS + 0];
-                forecast_bg[(i*WIDTH + j)*CHANNELS + 1] = object[(i*WIDTH + j)*CHANNELS + 1];
-                forecast_bg[(i*WIDTH + j)*CHANNELS + 2] = object[(i*WIDTH + j)*CHANNELS + 2];
-            }
-    	}
-	}
-
-    stbi_write_jpg("./image/final.jpg", width, height, channels, forecast_bg, 100);
-  
     stbi_image_free(background);
     stbi_image_free(object);
     stbi_image_free(forecast_bg);
 
     return 0;
 }
-
-
-
-
-
